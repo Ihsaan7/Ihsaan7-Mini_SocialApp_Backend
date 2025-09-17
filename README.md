@@ -6,6 +6,8 @@
 
 > A modern, full-stack social media platform built with Node.js, Express, and MongoDB
 
+https://mini-social-app-seven.vercel.app/
+
 ## ✨ Features
 
 - 🔐 **User Authentication** - Secure signup/login with JWT tokens and bcrypt password hashing
