@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Profile Picture - Social App</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+    }
+    
+    body {
+      background: #0d1117 !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      color: #f0f6fc !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100vh !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    body.light-theme {
+      background: #f6f8fa !important;
+      color: #24292f !important;
+    }
+    
+    .theme-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 1000 !important;
+      background: #21262d !important;
+      border: 1px solid #30363d !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      cursor: pointer !important;
+      font-size: 18px !important;
+      color: #f0f6fc !important;
+      transition: all 0.2s ease !important;
+      width: 36px !important;
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    @media (max-width: 768px) {
+      .theme-toggle {
+        top: 10px !important;
+        left: 10px !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+      }
+    }
+    
+    .theme-toggle:hover {
+      background: #30363d !important;
+    }
+    
+    body.light-theme .theme-toggle {
+      background: #ffffff !important;
+      border-color: #d0d7de !important;
+      color: #24292f !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    body.light-theme .theme-toggle:hover {
+      background: #eaeef2 !important;
+    }
+    
+    .github-header {
+      background: #161b22 !important;
+      border-bottom: 1px solid #30363d !important;
+      padding: 16px 24px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      transition: all 0.3s ease !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 100 !important;
+    }
+    
+    @media (max-width: 768px) {
+      .github-header {
+        padding: 12px 16px !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+    }
+    
+    body.light-theme .github-header {
+      background: #ffffff !important;
+      border-bottom-color: #d0d7de !important;
+    }
+    
+    .github-nav {
+      display: flex !important;
+      gap: 16px !important;
+      align-items: center !important;
+    }
+    
+    @media (max-width: 768px) {
+      .github-nav {
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+      }
+    }
+    
+    .github-nav-link {
+      color: #f0f6fc !important;
+      text-decoration: none !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      padding: 8px 16px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease !important;
+      border: 1px solid transparent !important;
+    }
+    
+    @media (max-width: 768px) {
+      .github-nav-link {
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+      }
+    }
+    
+    .github-nav-link:hover {
+      background: #21262d !important;
+      border-color: #30363d !important;
+    }
+    
+    .github-nav-link.primary {
+      background: #238636 !important;
+      border-color: #238636 !important;
+      color: #ffffff !important;
+    }
+    
+    .github-nav-link.primary:hover {
+      background: #2ea043 !important;
+      border-color: #2ea043 !important;
+    }
+    
+    .github-nav-link.danger {
+      color: #f85149 !important;
+    }
+    
+    .github-nav-link.danger:hover {
+      background: #da3633 !important;
+      color: #ffffff !important;
+    }
+    
+    body.light-theme .github-nav-link {
+      color: #24292f !important;
+    }
+    
+    body.light-theme .github-nav-link:hover {
+      background: #f6f8fa !important;
+      border-color: #d0d7de !important;
+    }
+    
+    body.light-theme .github-nav-link.primary {
+      background: #1f883d !important;
+      border-color: #1f883d !important;
+      color: #ffffff !important;
+    }
+    
+    body.light-theme .github-nav-link.primary:hover {
+      background: #1a7f37 !important;
+      border-color: #1a7f37 !important;
+    }
+    
+    .github-logo {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      color: #f0f6fc !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    body.light-theme .github-logo {
+      color: #24292f !important;
+    }
+    
+    .github-logo svg {
+      width: 24px !important;
+      height: 24px !important;
+      fill: currentColor !important;
+    }
+    
+    .main-container {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-height: calc(100vh - 73px) !important;
+      padding: 24px !important;
+    }
+    
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 16px !important;
+        min-height: calc(100vh - 97px) !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .main-container {
+        padding: 12px !important;
+      }
+    }
+    
+    .upload-card {
+      background: #161b22 !important;
+      border: 1px solid #30363d !important;
+      border-radius: 12px !important;
+      padding: 32px !important;
+      width: 100% !important;
+      max-width: 480px !important;
+      text-align: center !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    @media (max-width: 768px) {
+      .upload-card {
+        padding: 20px !important;
+        border-radius: 8px !important;
+        max-width: 100% !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .upload-card {
+        padding: 16px !important;
+      }
+    }
+    
+    body.light-theme .upload-card {
+      background: #ffffff !important;
+      border-color: #d0d7de !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .upload-title {
+      font-size: 24px !important;
+      font-weight: 600 !important;
+      color: #f0f6fc !important;
+      margin-bottom: 24px !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    @media (max-width: 768px) {
+      .upload-title {
+        font-size: 20px !important;
+        margin-bottom: 16px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .upload-title {
+        font-size: 18px !important;
+      }
+    }
+    
+    body.light-theme .upload-title {
+      color: #24292f !important;
+    }
+    
+    .upload-form {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 20px !important;
+    }
+    
+    @media (max-width: 768px) {
+      .upload-form {
+        gap: 16px !important;
+      }
+    }
+    
+    .file-input-wrapper {
+      position: relative !important;
+      overflow: hidden !important;
+      display: inline-block !important;
+      width: 100% !important;
+    }
+    
+    .file-input {
+      position: absolute !important;
+      left: -9999px !important;
+      opacity: 0 !important;
+    }
+    
+    .file-input-label {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 12px !important;
+      padding: 16px 24px !important;
+      background: #21262d !important;
+      border: 2px dashed #30363d !important;
+      border-radius: 8px !important;
+      color: #f0f6fc !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      min-height: 80px !important;
+    }
+    
+    @media (max-width: 768px) {
+      .file-input-label {
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+        min-height: 60px !important;
+        gap: 8px !important;
+        flex-direction: column !important;
+      }
+    }
+    
+    .file-input-label:hover {
+      background: #30363d !important;
+      border-color: #238636 !important;
+    }
+    
+    .file-input:focus + .file-input-label {
+      border-color: #238636 !important;
+      box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1) !important;
+    }
+    
+    body.light-theme .file-input-label {
+      background: #f6f8fa !important;
+      border-color: #d0d7de !important;
+      color: #24292f !important;
+    }
+    
+    body.light-theme .file-input-label:hover {
+      background: #eaeef2 !important;
+      border-color: #1f883d !important;
+    }
+    
+    body.light-theme .file-input:focus + .file-input-label {
+      border-color: #1f883d !important;
+      box-shadow: 0 0 0 3px rgba(31, 136, 61, 0.1) !important;
+    }
+    
+    .upload-icon {
+      font-size: 24px !important;
+    }
+    
+    @media (max-width: 768px) {
+      .upload-icon {
+        font-size: 20px !important;
+      }
+    }
+    
+    .upload-btn {
+      background: #238636 !important;
+      border: 1px solid #238636 !important;
+      border-radius: 6px !important;
+      padding: 12px 24px !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+    
+    @media (max-width: 768px) {
+      .upload-btn {
+        padding: 10px 20px !important;
+        font-size: 13px !important;
+        gap: 6px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .upload-btn {
+        padding: 8px 16px !important;
+        font-size: 12px !important;
+      }
+    }
+    
+    .upload-btn:hover {
+      background: #2ea043 !important;
+      border-color: #2ea043 !important;
+    }
+    
+    .upload-btn:disabled {
+      background: #21262d !important;
+      border-color: #30363d !important;
+      color: #7d8590 !important;
+      cursor: not-allowed !important;
+    }
+    
+    body.light-theme .upload-btn {
+      background: #1f883d !important;
+      border-color: #1f883d !important;
+    }
+    
+    body.light-theme .upload-btn:hover {
+      background: #1a7f37 !important;
+      border-color: #1a7f37 !important;
+    }
+    
+    body.light-theme .upload-btn:disabled {
+      background: #eaeef2 !important;
+      border-color: #d0d7de !important;
+      color: #656d76 !important;
+    }
+    
+    .file-name {
+      color: #7d8590 !important;
+      font-size: 12px !important;
+      margin-top: 8px !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    @media (max-width: 768px) {
+      .file-name {
+        font-size: 11px !important;
+        margin-top: 6px !important;
+      }
+    }
+    
+    body.light-theme .file-name {
+      color: #656d76 !important;
+    }
+  </style>
+  
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('light-theme')) {
+        body.classList.remove('light-theme');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.add('light-theme');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    
+    function updateFileName() {
+      const fileInput = document.getElementById('profilePic');
+      const fileName = document.getElementById('file-name');
+      const uploadBtn = document.getElementById('upload-btn');
+      
+      if (fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+        uploadBtn.disabled = false;
+      } else {
+        fileName.textContent = 'No file selected';
+        uploadBtn.disabled = true;
+      }
+    }
+    
+    // Load saved theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.textContent = '☀️';
+      } else {
+        themeIcon.textContent = '🌙';
+      }
+    });
+  </script>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <span id="theme-icon">🌙</span>
+  </button>
+  
+  <header class="github-header">
+    <div class="github-logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+        <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        <path d="M12 1v6m0 10v6m11-7h-6m-10 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Upload
+    </div>
+    
+    <nav class="github-nav">
+      <a href="/profile" class="github-nav-link">Profile</a>
+      <a href="/post" class="github-nav-link">Posts</a>
+      <a href="/logout" class="github-nav-link danger">Logout</a>
+    </nav>
+  </header>
+
+  <div class="main-container">
+    <div class="upload-card">
+      <h2 class="upload-title">📷 Upload Profile Picture</h2>
+
+      <form method="POST" action="/upload" enctype="multipart/form-data" class="upload-form">
+        <div class="file-input-wrapper">
+          <input type="file" 
+                 id="profilePic" 
+                 name="profilePic" 
+                 accept="image/*" 
+                 class="file-input" 
+                 onchange="updateFileName()" 
+                 required>
+          <label for="profilePic" class="file-input-label">
+            <span class="upload-icon">📁</span>
+            <span>Choose an image file</span>
+          </label>
+          <div id="file-name" class="file-name">No file selected</div>
+        </div>
+
+        <button type="submit" id="upload-btn" class="upload-btn" disabled>
+          <span>🚀</span>
+          Upload Picture
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

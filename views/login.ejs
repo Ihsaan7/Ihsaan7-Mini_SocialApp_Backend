@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Back - Social App</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+    }
+    
+    body {
+      background: #0d1117 !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      color: #f0f6fc !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      min-height: 100vh !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    body.light-theme {
+      background: #f6f8fa !important;
+      color: #24292f !important;
+    }
+    
+    .theme-toggle {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 1000 !important;
+      background: #21262d !important;
+      border: 1px solid #30363d !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      cursor: pointer !important;
+      font-size: 18px !important;
+      color: #f0f6fc !important;
+      transition: all 0.2s ease !important;
+      width: 36px !important;
+      height: 36px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .theme-toggle:hover {
+      background: #30363d !important;
+    }
+    
+    body.light-theme .theme-toggle {
+      background: #ffffff !important;
+      border-color: #d0d7de !important;
+      color: #24292f !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    body.light-theme .theme-toggle:hover {
+      background: #eaeef2 !important;
+    }
+    
+    .github-container {
+      background: #161b22 !important;
+      border: 1px solid #30363d !important;
+      border-radius: 12px !important;
+      padding: 32px !important;
+      width: 100% !important;
+      max-width: 400px !important;
+      box-shadow: 0 16px 32px rgba(1, 4, 9, 0.85) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    body.light-theme .github-container {
+      background: #ffffff !important;
+      border-color: #d0d7de !important;
+      box-shadow: 0 16px 32px rgba(31, 35, 40, 0.15) !important;
+    }
+    
+    .github-logo {
+      text-align: center !important;
+      margin-bottom: 16px !important;
+    }
+    
+    .github-logo svg {
+      width: 48px !important;
+      height: 48px !important;
+      fill: #f0f6fc !important;
+      transition: fill 0.3s ease !important;
+    }
+    
+    body.light-theme .github-logo svg {
+      fill: #24292f !important;
+    }
+    
+    .github-title {
+      font-size: 24px !important;
+      font-weight: 300 !important;
+      color: #f0f6fc !important;
+      text-align: center !important;
+      margin-bottom: 32px !important;
+      letter-spacing: -0.5px !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    body.light-theme .github-title {
+      color: #24292f !important;
+    }
+    
+    .github-form-group {
+      margin-bottom: 16px !important;
+    }
+    
+    .github-label {
+      display: block !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #f0f6fc !important;
+      margin-bottom: 8px !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    body.light-theme .github-label {
+      color: #24292f !important;
+    }
+    
+    .github-input {
+      width: 100% !important;
+      padding: 8px 12px !important;
+      background: #0d1117 !important;
+      border: 1px solid #30363d !important;
+      border-radius: 6px !important;
+      color: #f0f6fc !important;
+      font-size: 14px !important;
+      font-family: inherit !important;
+      transition: all 0.2s ease !important;
+      box-sizing: border-box !important;
+      height: 32px !important;
+      line-height: 1.4 !important;
+    }
+    
+    body.light-theme .github-input {
+      background: #ffffff !important;
+      border-color: #d0d7de !important;
+      color: #24292f !important;
+    }
+    
+    .github-input:focus {
+      outline: none !important;
+      border-color: #1f6feb !important;
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3) !important;
+    }
+    
+    .github-input::placeholder {
+      color: #7d8590 !important;
+    }
+    
+    body.light-theme .github-input::placeholder {
+      color: #656d76 !important;
+    }
+    
+    .github-btn {
+      width: 100% !important;
+      padding: 12px !important;
+      background: #238636 !important;
+      border: 1px solid #238636 !important;
+      border-radius: 6px !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      font-family: inherit !important;
+      margin-bottom: 16px !important;
+    }
+    
+    body.light-theme .github-btn {
+      background: #1f883d !important;
+      border-color: #1f883d !important;
+    }
+    
+    .github-btn:hover {
+      background: #2ea043 !important;
+      border-color: #2ea043 !important;
+    }
+    
+    body.light-theme .github-btn:hover {
+      background: #1a7f37 !important;
+      border-color: #1a7f37 !important;
+    }
+    
+    .github-btn:active {
+      background: #1a7f37 !important;
+      border-color: #1a7f37 !important;
+    }
+    
+    .github-link {
+      text-align: center !important;
+      margin-top: 24px !important;
+    }
+    
+    .github-link p {
+      color: #7d8590 !important;
+      font-size: 14px !important;
+      margin: 0 !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    body.light-theme .github-link p {
+      color: #656d76 !important;
+    }
+    
+    .github-link a {
+      color: #58a6ff !important;
+      text-decoration: none !important;
+      font-weight: 500 !important;
+      transition: color 0.3s ease !important;
+    }
+    
+    body.light-theme .github-link a {
+      color: #0969da !important;
+    }
+    
+    .github-link a:hover {
+      text-decoration: underline !important;
+    }
+  </style>
+  
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('light-theme')) {
+        body.classList.remove('light-theme');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.add('light-theme');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    
+    // Load saved theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme');
+      const themeIcon = document.getElementById('theme-icon');
+      
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.textContent = '☀️';
+      } else {
+        themeIcon.textContent = '🌙';
+      }
+    });
+  </script>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <span id="theme-icon">🌙</span>
+  </button>
+  
+  <div class="github-container">
+    <div class="github-logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+        <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        <path d="M12 1v6m0 10v6m11-7h-6m-10 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    
+    <h1 class="github-title">Welcome Back</h1>
+    
+    <form action="/login" method="POST">
+      <div class="github-form-group">
+        <label for="username" class="github-label">Username</label>
+        <input type="text" id="username" name="username" required class="github-input" placeholder="Enter your username">
+      </div>
+
+      <div class="github-form-group">
+        <label for="password" class="github-label">Password</label>
+        <input type="password" id="password" name="password" required class="github-input" placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="github-btn">
+        Sign In
+      </button>
+      
+      <div class="github-link">
+        <p>
+          Don't have an account? 
+          <a href="/">Create Account</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
