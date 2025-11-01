@@ -13,9 +13,19 @@ const upConfig = require("./config/multerConfig")
 const userModel = require("./models/user")
 const postModel = require("./models/post")
 const mongoose = require("mongoose")
+
+// Database connection with error handling
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/socialApp')
+  .then(() => {
+    console.log('✅ Connected to MongoDB successfully');
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error.message);
+    console.log('💡 Make sure MongoDB is running on your system');
+    console.log('💡 You can start MongoDB with: mongod');
+  });
+
 //--------------------- I_M_P_O_R_T_S ----------------------------//
-
-
 
 // ------------------- APP > USE > SET ---------------------
 app.set("view engine","ejs")
@@ -28,7 +38,6 @@ app.use(cookieP());
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(path.join(__dirname,"public")))
-
 
 //--------------- R_O_U_T_E_S ---------------
 //--------------- Test route for debugging -------------------------
@@ -80,24 +89,45 @@ app.post("/signup", [
     .isInt({ min: 1 })
     .withMessage("Age must be a number"),
 ], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).render("signup", { errors: errors.array() });
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("signup", { errors: errors.array() });
+    }
+
+    const { username, email, password, city, age } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ 
+      $or: [{ username }, { email }] 
+    });
+    
+    if (existingUser) {
+      return res.status(400).render("signup", { 
+        errors: [{ msg: "Username or email already exists" }] 
+      });
+    }
+
+    const salt = await bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS) || 10);
+    const hashPass = await bcrypt.hash(password, salt);
+
+    await userModel.create({
+      username,
+      email,
+      password: hashPass,
+      city,
+      age,
+    });
+
+    console.log(`✅ New user created: ${username}`);
+    res.redirect("/login");
+    
+  } catch (error) {
+    console.error('❌ Signup error:', error);
+    res.status(500).render("signup", { 
+      errors: [{ msg: "Server error. Please try again." }] 
+    });
   }
-
-  const { username, email, password, city, age } = req.body;
-  const salt = await bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS) || 10);
-  const hashPass = await bcrypt.hash(password, salt);
-
-  await userModel.create({
-    username,
-    email,
-    password: hashPass,
-    city,
-    age,
-  });
-
-  res.redirect("/login");
 });
 
         
@@ -107,29 +137,55 @@ app.get("/login",(req,res)=>
         res.render("login")
     })
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  
-  let user = await userModel.findOne({ username });
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).render("login", { 
+        error: "Username and password are required" 
+      });
+    }
+    
+    let user = await userModel.findOne({ username });
 
-  if (!user) {
-    return res.status(401).redirect("/login");
-  }
+    if (!user) {
+      console.log(`❌ Login failed: User '${username}' not found`);
+      return res.status(401).render("login", { 
+        error: "Invalid username or password" 
+      });
+    }
 
-  let match = await bcrypt.compare(password, user.password);
-  
-  if (match) {
-    let token = jwt.sign({username:user.username , user_id:user._id} , process.env.JWT_SECRET)
-    res.cookie("token" , token, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      maxAge: parseInt(process.env.COOKIE_MAX_AGE) || 86400000
-    })
-    res.redirect("/profile");
-  } else {
-    res.status(401).redirect("/login");
+    let match = await bcrypt.compare(password, user.password);
+    
+    if (match) {
+      let token = jwt.sign(
+        { username: user.username, user_id: user._id }, 
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      res.cookie("token", token, {
+        httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
+        secure: process.env.COOKIE_SECURE === 'true',
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE) || 86400000
+      });
+      
+      console.log(`✅ User logged in successfully: ${username}`);
+      res.redirect("/profile");
+    } else {
+      console.log(`❌ Login failed: Wrong password for user '${username}'`);
+      res.status(401).render("login", { 
+        error: "Invalid username or password" 
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    res.status(500).render("login", { 
+      error: "Server error. Please try again." 
+    });
   }
 });
-
 
 //--------------- profile -------------------------
 app.get("/profile",isLoggedIn,async(req,res)=>
@@ -137,7 +193,6 @@ app.get("/profile",isLoggedIn,async(req,res)=>
         let user =await userModel.findOne({username : req.user.username})
         res.render("profile",{user})
     })
-
 
 //--------------- Post -------------------------
 app.get("/post",isLoggedIn,async(req,res)=>
@@ -158,7 +213,6 @@ app.post("/post",isLoggedIn,async (req,res)=>
         await user.save()
         res.redirect("/post")
     })  
-
 
 //--------------- Upload -------------------------
 app.get("/profile/upload",isLoggedIn,(req,res)=>
@@ -186,8 +240,6 @@ app.post("/upload",isLoggedIn,upConfig.single("profilePic"),async(req,res)=>
             res.status(500).send("Upload failed");
         }
     })
-    
-
 
 //--------------- likes -------------------------
 app.get("/like/:id", isLoggedIn, async (req, res) => {
@@ -203,7 +255,6 @@ app.get("/like/:id", isLoggedIn, async (req, res) => {
   await post.save();
   res.redirect("/post");
 });
-
 
 //--------------- Edit -------------------------
 app.get("/edit/:id",isLoggedIn,async(req,res)=>
@@ -229,14 +280,12 @@ app.post("/edit/:id",isLoggedIn,async(req,res)=>
         }
     })
 
-
 //--------------- logout -------------------------
 app.get("/logout",(req,res)=>
     {
         res.clearCookie("token");
         res.redirect("/login")
     })
-
 
 //--------------- Auth Function -------------------------
 function isLoggedIn(req,res,next)
@@ -254,18 +303,5 @@ function isLoggedIn(req,res,next)
     }
 }
 
-
-
-
-
-
-
-
-//--------------- signup -------------------------
-//--------------- signup -------------------------
-
-
-
-//--------------- Server Port -------------------------
-const PORT = process.env.PORT || 8000;
-app.listen(PORT,()=>{console.log(`Server is running at ${PORT}`)})
+// Export for Vercel
+module.exports = app;

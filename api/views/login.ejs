@@ -232,6 +232,17 @@
     .github-link a:hover {
       text-decoration: underline !important;
     }
+    
+    .github-error {
+      background: #da3633 !important;
+      border: 1px solid #f85149 !important;
+      border-radius: 6px !important;
+      padding: 16px !important;
+      margin-bottom: 16px !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      text-align: center !important;
+    }
   </style>
   
   <script>
@@ -279,6 +290,12 @@
     </div>
     
     <h1 class="github-title">Welcome Back</h1>
+    
+    <% if (typeof error !== "undefined" && error) { %>
+      <div class="github-error">
+        <%= error %>
+      </div>
+    <% } %>
     
     <form action="/login" method="POST">
       <div class="github-form-group">
