@@ -91,24 +91,45 @@ app.post("/signup", [
     .isInt({ min: 1 })
     .withMessage("Age must be a number"),
 ], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).render("signup", { errors: errors.array() });
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("signup", { errors: errors.array() });
+    }
+
+    const { username, email, password, city, age } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ 
+      $or: [{ username }, { email }] 
+    });
+    
+    if (existingUser) {
+      return res.status(400).render("signup", { 
+        errors: [{ msg: "Username or email already exists" }] 
+      });
+    }
+
+    const salt = await bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS) || 10);
+    const hashPass = await bcrypt.hash(password, salt);
+
+    await userModel.create({
+      username,
+      email,
+      password: hashPass,
+      city,
+      age,
+    });
+
+    console.log(`✅ New user created: ${username}`);
+    res.redirect("/login");
+    
+  } catch (error) {
+    console.error('❌ Signup error:', error);
+    res.status(500).render("signup", { 
+      errors: [{ msg: "Server error. Please try again." }] 
+    });
   }
-
-  const { username, email, password, city, age } = req.body;
-  const salt = await bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS) || 10);
-  const hashPass = await bcrypt.hash(password, salt);
-
-  await userModel.create({
-    username,
-    email,
-    password: hashPass,
-    city,
-    age,
-  });
-
-  res.redirect("/login");
 });
 
         
