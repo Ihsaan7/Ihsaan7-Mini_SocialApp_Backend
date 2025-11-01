@@ -13,6 +13,18 @@ const upConfig = require("./config/multerConfig")
 const userModel = require("./models/user")
 const postModel = require("./models/post")
 const mongoose = require("mongoose")
+
+// Database connection with error handling
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/socialApp')
+  .then(() => {
+    console.log('✅ Connected to MongoDB successfully');
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error.message);
+    console.log('💡 Make sure MongoDB is running on your system');
+    console.log('💡 You can start MongoDB with: mongod');
+  });
+
 //--------------------- I_M_P_O_R_T_S ----------------------------//
 
 
