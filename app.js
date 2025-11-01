@@ -139,26 +139,53 @@ app.get("/login",(req,res)=>
         res.render("login")
     })
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  
-  let user = await userModel.findOne({ username });
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).render("login", { 
+        error: "Username and password are required" 
+      });
+    }
+    
+    let user = await userModel.findOne({ username });
 
-  if (!user) {
-    return res.status(401).redirect("/login");
-  }
+    if (!user) {
+      console.log(`❌ Login failed: User '${username}' not found`);
+      return res.status(401).render("login", { 
+        error: "Invalid username or password" 
+      });
+    }
 
-  let match = await bcrypt.compare(password, user.password);
-  
-  if (match) {
-    let token = jwt.sign({username:user.username , user_id:user._id} , process.env.JWT_SECRET)
-    res.cookie("token" , token, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      maxAge: parseInt(process.env.COOKIE_MAX_AGE) || 86400000
-    })
-    res.redirect("/profile");
-  } else {
-    res.status(401).redirect("/login");
+    let match = await bcrypt.compare(password, user.password);
+    
+    if (match) {
+      let token = jwt.sign(
+        { username: user.username, user_id: user._id }, 
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      res.cookie("token", token, {
+        httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
+        secure: process.env.COOKIE_SECURE === 'true',
+        maxAge: parseInt(process.env.COOKIE_MAX_AGE) || 86400000
+      });
+      
+      console.log(`✅ User logged in successfully: ${username}`);
+      res.redirect("/profile");
+    } else {
+      console.log(`❌ Login failed: Wrong password for user '${username}'`);
+      res.status(401).render("login", { 
+        error: "Invalid username or password" 
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    res.status(500).render("login", { 
+      error: "Server error. Please try again." 
+    });
   }
 });
 
