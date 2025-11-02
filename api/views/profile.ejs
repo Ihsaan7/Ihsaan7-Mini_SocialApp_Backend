@@ -385,7 +385,7 @@
 
   <div class="profile-container">
     <div class="profile-card">
-      <img src="<%= user.profilePic && user.profilePic.startsWith('data:') ? user.profilePic : '/images/uploads/' + user.profilePic %>" class="profile-image" alt="Profile Picture" />
+      <img src="/images/uploads/<%= user.profilePic %>" class="profile-image" alt="Profile Picture" />
       
       <h1 class="profile-name"><%= user.username %></h1>
       

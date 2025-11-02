@@ -27,9 +27,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/socialApp
 
 //--------------------- I_M_P_O_R_T_S ----------------------------//
 
+
+
 // ------------------- APP > USE > SET ---------------------
 app.set("view engine","ejs")
-app.set("views", path.join(__dirname, "views"))
 // Disable view caching in development
 if (process.env.NODE_ENV !== 'production') {
   app.set('view cache', false);
@@ -38,6 +39,7 @@ app.use(cookieP());
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(path.join(__dirname,"public")))
+
 
 //--------------- R_O_U_T_E_S ---------------
 //--------------- Test route for debugging -------------------------
@@ -95,6 +97,7 @@ app.post("/signup", [
       return res.status(400).render("signup", { errors: errors.array() });
     }
 
+    console.log('📝 Signup attempt received:', req.body);
     const { username, email, password, city, age } = req.body;
     
     // Check if user already exists
@@ -138,9 +141,11 @@ app.get("/login",(req,res)=>
     })
 app.post("/login", async (req, res) => {
   try {
+    console.log('🔐 Login attempt received:', req.body);
     const { username, password } = req.body;
     
     if (!username || !password) {
+      console.log('❌ Missing username or password');
       return res.status(400).render("login", { 
         error: "Username and password are required" 
       });
@@ -187,12 +192,14 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
 //--------------- profile -------------------------
 app.get("/profile",isLoggedIn,async(req,res)=>
     {
         let user =await userModel.findOne({username : req.user.username})
         res.render("profile",{user})
     })
+
 
 //--------------- Post -------------------------
 app.get("/post",isLoggedIn,async(req,res)=>
@@ -214,32 +221,21 @@ app.post("/post",isLoggedIn,async (req,res)=>
         res.redirect("/post")
     })  
 
+
 //--------------- Upload -------------------------
 app.get("/profile/upload",isLoggedIn,(req,res)=>
     {
         res.render("profileUpload")
     })
-app.post("/upload",isLoggedIn,upConfig.single("profilePic"),async(req,res)=>
+app.post("/upload",upConfig.single("profilePic"),isLoggedIn,async(req,res)=>
     {
-        try {
-            if (!req.file) {
-                return res.status(400).send("No file uploaded");
-            }
-            
-            let user = await userModel.findOne({username : req.user.username})
-            
-            // Convert file buffer to base64 and store with mime type
-            const base64Image = req.file.buffer.toString('base64');
-            const imageData = `data:${req.file.mimetype};base64,${base64Image}`;
-            
-            user.profilePic = imageData;
-            await user.save()      
-            res.redirect("/post")
-        } catch (error) {
-            console.error("Upload error:", error);
-            res.status(500).send("Upload failed");
-        }
+        let user =await userModel.findOne({username : req.user.username})
+        user.profilePic = req.file.filename;
+        await user.save()      
+        res.redirect("/post")
     })
+    
+
 
 //--------------- likes -------------------------
 app.get("/like/:id", isLoggedIn, async (req, res) => {
@@ -255,6 +251,7 @@ app.get("/like/:id", isLoggedIn, async (req, res) => {
   await post.save();
   res.redirect("/post");
 });
+
 
 //--------------- Edit -------------------------
 app.get("/edit/:id",isLoggedIn,async(req,res)=>
@@ -280,12 +277,34 @@ app.post("/edit/:id",isLoggedIn,async(req,res)=>
         }
     })
 
+
 //--------------- logout -------------------------
 app.get("/logout",(req,res)=>
     {
         res.clearCookie("token");
         res.redirect("/login")
     })
+
+
+//--------------- Auth Middleware Function -------------------------
+function isLoggedIn(req,res,next)
+{
+    if(!req.cookies.token || req.cookies.token === "") {
+        console.log('❌ No token found, redirecting to login');
+        return res.redirect("/login")
+    }
+    try {
+       let data = jwt.verify(req.cookies.token , process.env.JWT_SECRET)
+       req.user = data
+       console.log(`✅ User authenticated: ${data.username}`);
+       next()
+    } catch(err) {
+        console.error('❌ Token verification failed:', err.message);
+        res.clearCookie("token");
+        return res.redirect("/login")
+    }
+}
+
 
 //--------------- Auth Function -------------------------
 function isLoggedIn(req,res,next)
@@ -303,5 +322,24 @@ function isLoggedIn(req,res,next)
     }
 }
 
-// Export for Vercel
+
+
+
+
+
+
+
+//--------------- signup -------------------------
+//--------------- signup -------------------------
+
+
+
+//--------------- Server Port -------------------------
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT,()=>{console.log(`Server is running at ${PORT}`)})
+}
+
+// Export for Vercel serverless
 module.exports = app;
