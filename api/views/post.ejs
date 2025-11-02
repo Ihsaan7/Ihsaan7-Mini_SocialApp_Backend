@@ -739,7 +739,7 @@
         <% user.post.reverse().forEach(function(post, index) { %>
           <div class="post-item">
             <div class="post-header">
-              <img src="/images/uploads/<%= user.profilePic %>" class="post-avatar" alt="Avatar" />
+              <img src="<%= user.profilePic.startsWith('data:') ? user.profilePic : '/images/uploads/' + user.profilePic %>" class="post-avatar" alt="Avatar" />
               <div>
                 <div class="post-author">@ <%= user.username %></div>
                 <div class="post-date mt-2"><%= new Date(post.date).toLocaleDateString() %></div>
