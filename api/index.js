@@ -34,6 +34,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/socialApp
 
 // ------------------- APP > USE > SET ---------------------
 app.set("view engine","ejs")
+app.set("views", path.join(__dirname, "views"))
 // Disable view caching in development
 if (process.env.NODE_ENV !== 'production') {
   app.set('view cache', false);
