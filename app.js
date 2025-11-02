@@ -97,6 +97,7 @@ app.post("/signup", [
       return res.status(400).render("signup", { errors: errors.array() });
     }
 
+    console.log('📝 Signup attempt received:', req.body);
     const { username, email, password, city, age } = req.body;
     
     // Check if user already exists
@@ -140,9 +141,11 @@ app.get("/login",(req,res)=>
     })
 app.post("/login", async (req, res) => {
   try {
+    console.log('🔐 Login attempt received:', req.body);
     const { username, password } = req.body;
     
     if (!username || !password) {
+      console.log('❌ Missing username or password');
       return res.status(400).render("login", { 
         error: "Username and password are required" 
       });
@@ -281,6 +284,26 @@ app.get("/logout",(req,res)=>
         res.clearCookie("token");
         res.redirect("/login")
     })
+
+
+//--------------- Auth Middleware Function -------------------------
+function isLoggedIn(req,res,next)
+{
+    if(!req.cookies.token || req.cookies.token === "") {
+        console.log('❌ No token found, redirecting to login');
+        return res.redirect("/login")
+    }
+    try {
+       let data = jwt.verify(req.cookies.token , process.env.JWT_SECRET)
+       req.user = data
+       console.log(`✅ User authenticated: ${data.username}`);
+       next()
+    } catch(err) {
+        console.error('❌ Token verification failed:', err.message);
+        res.clearCookie("token");
+        return res.redirect("/login")
+    }
+}
 
 
 //--------------- Auth Function -------------------------
