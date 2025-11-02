@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema({
     city:String,
     profilePic:{
         type:String,
-        default: "default.jpg"
+        default: "default.svg"
     },
     post:[{
         type:mongoose.Schema.Types.ObjectId,

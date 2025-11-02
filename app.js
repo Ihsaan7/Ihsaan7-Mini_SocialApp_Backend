@@ -9,7 +9,10 @@ const crypto = require("crypto")
 const cookieP = require("cookie-parser")
 const { check, validationResult } = require("express-validator");
 
-const upConfig = require("./config/multerConfig")
+// Use different multer config for production (Vercel) vs development
+const upConfig = process.env.NODE_ENV === 'production' 
+  ? require("./config/multerConfig-vercel")
+  : require("./config/multerConfig")
 const userModel = require("./models/user")
 const postModel = require("./models/post")
 const mongoose = require("mongoose")
@@ -227,12 +230,38 @@ app.get("/profile/upload",isLoggedIn,(req,res)=>
     {
         res.render("profileUpload")
     })
-app.post("/upload",upConfig.single("profilePic"),isLoggedIn,async(req,res)=>
+app.post("/upload",isLoggedIn,upConfig.single("profilePic"),async(req,res)=>
     {
-        let user =await userModel.findOne({username : req.user.username})
-        user.profilePic = req.file.filename;
-        await user.save()      
-        res.redirect("/post")
+        try {
+            console.log('📷 Upload attempt by:', req.user.username);
+            
+            if (!req.file) {
+                console.log('❌ No file uploaded');
+                return res.status(400).send("No file uploaded");
+            }
+            
+            let user = await userModel.findOne({username : req.user.username})
+            
+            if (process.env.NODE_ENV === 'production') {
+                // For Vercel: Convert file buffer to base64 and store with mime type
+                const base64Image = req.file.buffer.toString('base64');
+                const imageData = `data:${req.file.mimetype};base64,${base64Image}`;
+                user.profilePic = imageData;
+                console.log('📷 File stored as base64 data URL');
+            } else {
+                // For local development: Store filename
+                user.profilePic = req.file.filename;
+                console.log('📷 File uploaded:', req.file.filename);
+            }
+            
+            await user.save()
+            
+            console.log('✅ Profile picture updated for:', req.user.username);
+            res.redirect("/post")
+        } catch (error) {
+            console.error('❌ Upload error:', error);
+            res.status(500).send("Upload failed: " + error.message);
+        }
     })
     
 

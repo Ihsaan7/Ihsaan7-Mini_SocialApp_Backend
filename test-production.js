@@ -1,7 +1,7 @@
 // Test script to verify production deployment
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-const PROD_URL = 'https://mini-social-mtyt75nnw-egzziwd-8640s-projects.vercel.app';
+const PROD_URL = 'https://mini-social-48tyjipv4-egzziwd-8640s-projects.vercel.app';
 
 async function testProduction() {
   console.log('🧪 Testing Production Deployment...\n');

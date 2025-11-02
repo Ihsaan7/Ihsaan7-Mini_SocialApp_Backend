@@ -707,7 +707,7 @@
     <!-- User Greeting -->
     <div class="github-card">
       <div class="user-greeting">
-        <img src="/images/uploads/<%= user.profilePic %>" class="profile-image" alt="Profile" />
+        <img src="<%= user.profilePic.startsWith('data:') ? user.profilePic : '/images/uploads/' + user.profilePic %>" class="profile-image" alt="Profile" />
         <div class="greeting-text">
           <h2>Hello <%= user.username %>! 👋</h2>
           <p>Share your thoughts with the world</p>
