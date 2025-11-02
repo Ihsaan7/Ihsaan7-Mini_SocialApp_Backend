@@ -353,6 +353,47 @@
     </div>
   </div>
    
-   <script src="/javascript/app-simple.js"></script>
+   <script>
+     // Minimal inline JavaScript for theme only
+     function toggleTheme() {
+       const body = document.body;
+       const themeIcon = document.getElementById('theme-icon');
+       
+       if (body.classList.contains('light-theme')) {
+         body.classList.remove('light-theme');
+         themeIcon.textContent = '🌙';
+         localStorage.setItem('theme', 'dark');
+       } else {
+         body.classList.add('light-theme');
+         themeIcon.textContent = '☀️';
+         localStorage.setItem('theme', 'light');
+       }
+     }
+     
+     // Load saved theme on page load
+     document.addEventListener('DOMContentLoaded', function() {
+       const savedTheme = localStorage.getItem('theme');
+       const themeIcon = document.getElementById('theme-icon');
+       
+       if (savedTheme === 'light') {
+         document.body.classList.add('light-theme');
+         themeIcon.textContent = '☀️';
+       } else {
+         themeIcon.textContent = '🌙';
+       }
+       
+       console.log('✅ Signup page loaded successfully');
+       
+       // Add form debugging
+       const form = document.querySelector('form');
+       if (form) {
+         form.addEventListener('submit', function(e) {
+           console.log('📝 Signup form submitted');
+           const formData = new FormData(form);
+           console.log('Form data:', Object.fromEntries(formData));
+         });
+       }
+     });
+   </script>
 </body>
 </html>
