@@ -1,0 +1,33 @@
+name: Test Deployed Backend
+
+on:
+  workflow_dispatch: # allows manual trigger
+  schedule:
+    - cron: "0 6 * * *" # runs daily at 6 AM UTC
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check root signup route
+        run: |
+          echo "Testing signup page..."
+          curl -f -s -o /dev/null -w "HTTP Status: %{http_code}\n" https://mini-social-app-seven.vercel.app/ || echo "Failed to reach signup page"
+
+      - name: Check login page route
+        run: |
+          echo "Testing login page..."
+          curl -f -s -o /dev/null -w "HTTP Status: %{http_code}\n" https://mini-social-app-seven.vercel.app/login || echo "Failed to reach login page"
+
+      - name: Check test-db route (health check)
+        run: |
+          echo "Testing database connection..."
+          response=$(curl -s https://mini-social-app-seven.vercel.app/test-db)
+          echo "$response"
+          echo "$response" | grep -q "message" && echo "✅ Database health check passed" || echo "❌ Database health check failed"
+
+      - name: Verify static assets
+        run: |
+          echo "Testing static CSS file..."
+          curl -f -s -o /dev/null -w "HTTP Status: %{http_code}\n" https://mini-social-app-seven.vercel.app/stylesheet/styles.css || echo "Failed to load CSS"
